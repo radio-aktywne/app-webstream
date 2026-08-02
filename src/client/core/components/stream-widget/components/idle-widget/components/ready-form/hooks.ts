@@ -5,10 +5,7 @@ import dayjs, { type Dayjs } from "dayjs";
 import { sortBy, uniqBy } from "es-toolkit/array";
 import { useMemo, useState } from "react";
 
-import type {
-  ReadyFormInitialValues,
-  ReadyFormPartialInitialValues,
-} from "./types";
+import type { ReadyFormInitialValues } from "./types";
 
 import { useLocalization } from "../../../../../../../../isomorphic/localization/hooks/use-localization";
 import { orpcClientSideQueryClient } from "../../../../../../../orpc/vars/clients";
@@ -79,11 +76,11 @@ export function useShows(instances: ReturnType<typeof useInstances>) {
 }
 
 export function useInitialValues(
-  partialInitialValues: ReadyFormPartialInitialValues,
+  initialValues: ReadyFormInitialValues | undefined,
   instances: ReturnType<typeof useInstances>,
 ) {
-  const [event, start, duration] = partialInitialValues?.instance
-    ? partialInitialValues.instance.split("/")
+  const [event, start, duration] = initialValues?.instance
+    ? initialValues.instance.split("/")
     : [null, null, null];
 
   const found = instances.find(
@@ -99,11 +96,11 @@ export function useInitialValues(
       instance: selected
         ? `${selected.event.id}/${selected.start}/${selected.duration}`
         : null,
-      record: partialInitialValues?.record ?? false,
+      record: initialValues?.record ?? false,
       title:
-        found && partialInitialValues?.title
-          ? partialInitialValues.title
-          : (selected?.event.show?.title ?? null),
+        found && initialValues?.title
+          ? initialValues.title
+          : (selected?.event.show?.title ?? ""),
     }),
     [selected],
   );

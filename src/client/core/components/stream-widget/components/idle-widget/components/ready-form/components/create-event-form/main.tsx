@@ -1,6 +1,7 @@
 import { msg } from "@lingui/core/macro";
 import { Button } from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
+import { isString } from "es-toolkit/predicate";
 import { useState } from "react";
 
 import type { CreateEventFormInput } from "./types";
@@ -18,21 +19,25 @@ export function CreateEventForm({ onError, onSubmit }: CreateEventFormInput) {
     now.add(5 - (now.minute() % 5), "minute").startOf("minute"),
   );
   const [initialValues] = useState({
-    end: start.add(1, "hour").format("YYYY-MM-DD HH:mm:ss"),
-    start: start.format("YYYY-MM-DD HH:mm:ss"),
+    end: start.add(1, "hour").format("YYYY-MM-DDTHH:mm:ss"),
+    start: start.format("YYYY-MM-DDTHH:mm:ss"),
   });
 
   const { form, handleFormSubmit, submitting } = useForm({
     initialValues: initialValues,
+    inputSchema: Schemas.Input,
     onError: onError,
     onSubmit: onSubmit,
-    schema: Schemas.Values,
+    outputSchema: Schemas.Output,
   });
 
   return (
     <form onSubmit={handleFormSubmit} style={{ display: "contents" }}>
       <DateTimePicker
         dropdownType="modal"
+        errorProps={{
+          title: [form.getInputProps("start").error].find(isString),
+        }}
         key={form.key("start")}
         label={localization.localize(
           msg({ context: "time", message: "Start" }),
@@ -46,6 +51,9 @@ export function CreateEventForm({ onError, onSubmit }: CreateEventFormInput) {
       />
       <DateTimePicker
         dropdownType="modal"
+        errorProps={{
+          title: [form.getInputProps("end").error].find(isString),
+        }}
         key={form.key("end")}
         label={localization.localize(msg({ context: "time", message: "End" }))}
         placeholder={localization.localize(
