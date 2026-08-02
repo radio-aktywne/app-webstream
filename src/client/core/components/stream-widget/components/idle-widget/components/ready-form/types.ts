@@ -1,30 +1,63 @@
+import type { HasRequiredKeys } from "type-fest";
+import type * as z from "zod";
+
 import type {
+  UseFormErrorInput,
+  UseFormErrors,
   UseFormInitialValues,
   UseFormOnError,
   UseFormOnSubmit,
+  UseFormSubmitErrorOutput,
   UseFormSubmitInput,
-  UseFormValues,
+  UseFormSubmitOutput,
+  UseFormSubmitSuccessOutput,
 } from "../../../../../../../../isomorphic/core/hooks/use-form";
 import type { Schemas } from "./schemas";
 
-export type ReadyFormSchema = typeof Schemas.Values;
+export type ReadyFormInputSchema = typeof Schemas.Input;
 
-export type ReadyFormValues = UseFormValues<ReadyFormSchema>;
+export type ReadyFormOutputSchema = typeof Schemas.Output;
 
-export type ReadyFormInitialValues = UseFormInitialValues<ReadyFormSchema>;
+export type ReadyFormInitialValues = UseFormInitialValues<
+  z.output<ReadyFormInputSchema>
+>;
 
-export type ReadyFormPartialInitialValues =
-  | Partial<ReadyFormInitialValues>
-  | undefined;
+export type ReadyFormErrorInput = UseFormErrorInput<
+  z.output<ReadyFormInputSchema>
+>;
 
-export type ReadyFormOnError = UseFormOnError;
+export type ReadyFormOnError = UseFormOnError<z.output<ReadyFormInputSchema>>;
 
-export type ReadyFormSubmitInput = UseFormSubmitInput<ReadyFormSchema>;
+export type ReadyFormSubmitInput = UseFormSubmitInput<
+  z.output<ReadyFormOutputSchema>
+>;
 
-export type ReadyFormOnSubmit = UseFormOnSubmit<ReadyFormSchema>;
+export type ReadyFormErrors = UseFormErrors<z.input<ReadyFormInputSchema>>;
 
-export type ReadyFormInput = {
-  initialValues?: ReadyFormPartialInitialValues;
+export type ReadyFormSubmitErrorOutput = UseFormSubmitErrorOutput<
+  z.input<ReadyFormInputSchema>
+>;
+
+export type ReadyFormSubmitSuccessOutput = UseFormSubmitSuccessOutput<
+  z.output<ReadyFormInputSchema>
+>;
+
+export type ReadyFormSubmitOutput = UseFormSubmitOutput<
+  z.input<ReadyFormInputSchema>,
+  z.output<ReadyFormInputSchema>
+>;
+
+export type ReadyFormOnSubmit = UseFormOnSubmit<
+  z.input<ReadyFormInputSchema>,
+  z.output<ReadyFormInputSchema>,
+  z.output<ReadyFormOutputSchema>
+>;
+
+export type ReadyFormInput = (HasRequiredKeys<
+  z.output<ReadyFormInputSchema>
+> extends true
+  ? { initialValues: ReadyFormInitialValues }
+  : { initialValues?: ReadyFormInitialValues }) & {
   onError?: ReadyFormOnError;
   onSubmit: ReadyFormOnSubmit;
 };

@@ -1,5 +1,16 @@
 import "client-only";
 
+import type { ReadonlyDeep } from "type-fest";
+
+export type HistoryEntry = {
+  path: string;
+  query: { [key: string]: string | string[] };
+};
+
+export type HistoryState = {
+  entries: HistoryEntry[];
+};
+
 export type NowState = {
   counter: number;
   timer: number;
@@ -85,9 +96,12 @@ export type StreamState =
   | StreamUnreadyingState;
 
 export type State = {
+  history: HistoryState;
   now?: NowState;
   stream?: StreamState;
 };
+
+export type ReadonlyState = ReadonlyDeep<State>;
 
 export type StateSubscribeCallback = (state: State) => void;
 

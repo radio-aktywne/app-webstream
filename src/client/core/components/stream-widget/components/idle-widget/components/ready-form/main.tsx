@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Center } from "@radio-aktywne/ui";
+import { isString } from "es-toolkit/predicate";
 import { useCallback, useState } from "react";
 import { MdOutlineAddBox } from "react-icons/md";
 
@@ -39,7 +40,7 @@ import {
 import { Schemas } from "./schemas";
 
 export function ReadyForm({
-  initialValues: partialInitialValues,
+  initialValues: initialInitialValues,
   onError,
   onSubmit,
 }: ReadyFormInput) {
@@ -56,7 +57,7 @@ export function ReadyForm({
   const available = useAvailable();
   const instances = useInstances();
   const shows = useShows(instances);
-  const initialValues = useInitialValues(partialInitialValues, instances);
+  const initialValues = useInitialValues(initialInitialValues, instances);
   const [earliest, latest] = useEarliestLatest(instances);
 
   const [selectedShow, setSelectedShow] = useSelectedShow(
@@ -68,15 +69,16 @@ export function ReadyForm({
   const eventsCreateMutation = useEventsCreateMutation();
 
   const [valid, setValid] = useState(
-    initialValues.instance && initialValues.title,
+    !!initialValues.instance && !!initialValues.title,
   );
   const { form, handleFormSubmit, submitting } = useForm({
     initialValues: initialValues,
+    inputSchema: Schemas.Input,
     onError: onError,
     onSubmit: onSubmit,
-    onValuesChange: (values) =>
-      setValid((values.instance ?? null) && (values.title ?? null)),
-    schema: Schemas.Values,
+    onValuesChange: ({ current }) =>
+      setValid(!!current.instance && !!current.title),
+    outputSchema: Schemas.Output,
   });
 
   const handleShowChange = useCallback(
@@ -94,7 +96,7 @@ export function ReadyForm({
           : null,
       );
 
-      form.setFieldValue("title", instance?.event.show?.title ?? null);
+      form.setFieldValue("title", instance?.event.show?.title ?? "");
     },
     [form.setFieldValue, instances],
   );
@@ -113,12 +115,12 @@ export function ReadyForm({
             duration: dayjs
               .duration(
                 dayjs
-                  .tz(values.end.replace(" ", "T"), timezone)
-                  .diff(dayjs.tz(values.start.replace(" ", "T"), timezone)),
+                  .tz(values.end, timezone)
+                  .diff(dayjs.tz(values.start, timezone)),
               )
               .toISOString(),
             showId: selectedShow,
-            start: values.start.replace(" ", "T"),
+            start: values.start,
             timezone: timezone,
             type: "live",
           },
@@ -216,6 +218,9 @@ export function ReadyForm({
                     ),
                   value: `${instance.event.id}/${instance.start}/${instance.duration}`,
                 }))}
+                errorProps={{
+                  title: [form.getInputProps("instance").error].find(isString),
+                }}
                 flex={1}
                 key={form.key("instance")}
                 label={localization.localize(msg({ message: "Instance" }))}
@@ -230,6 +235,9 @@ export function ReadyForm({
               </ActionIcon>
             </Group>
             <TextInput
+              errorProps={{
+                title: [form.getInputProps("title").error].find(isString),
+              }}
               key={form.key("title")}
               label={localization.localize(msg({ message: "Title" }))}
               placeholder={localization.localize(msg({ message: "Set title" }))}

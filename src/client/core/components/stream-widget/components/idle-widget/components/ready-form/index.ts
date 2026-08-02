@@ -1,10 +1,15 @@
 export { ReadyForm } from "./main";
 export type {
+  ReadyFormErrorInput,
+  ReadyFormErrors,
   ReadyFormInitialValues,
   ReadyFormInput,
+  ReadyFormInputSchema,
   ReadyFormOnError,
   ReadyFormOnSubmit,
-  ReadyFormPartialInitialValues,
+  ReadyFormOutputSchema,
+  ReadyFormSubmitErrorOutput,
   ReadyFormSubmitInput,
-  ReadyFormValues,
+  ReadyFormSubmitOutput,
+  ReadyFormSubmitSuccessOutput,
 } from "./types";
